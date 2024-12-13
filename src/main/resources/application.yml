@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:6432/mydb
+    username: myuser
+    password: secret
+
+backup:
+  directory: D:\DataBaseProject\back-main\backups
+  dbName: mydb
