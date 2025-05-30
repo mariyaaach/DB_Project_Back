@@ -1,6 +1,7 @@
 package ru.itpark.mashacursah.controllers.http.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.itpark.mashacursah.controllers.http.user.dto.GetUserDto;
 import ru.itpark.mashacursah.controllers.http.user.dto.UpdateUserDto;

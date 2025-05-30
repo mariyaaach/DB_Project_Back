@@ -1,10 +1,13 @@
 package ru.itpark.mashacursah.service.backup;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.itpark.mashacursah.entity.backup.Backup;
 import ru.itpark.mashacursah.infrastructure.async.TaskPublisher;
+import ru.itpark.mashacursah.infrastructure.configuration.redis.publisher.NotificationPublisher;
+import ru.itpark.mashacursah.infrastructure.configuration.redis.publisher.dto.NotificationEvent;
 import ru.itpark.mashacursah.infrastructure.repository.backup.BackupRepository;
 
 import java.nio.file.Files;
@@ -14,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BackupService {
 
     @Getter
@@ -28,16 +32,19 @@ public class BackupService {
 
     private final TaskPublisher taskPublisher;
     private final BackupRepository backupRepository;
+    private final NotificationPublisher notificationPublisher;
     private static final long TIMEOUT_MILLIS = 60 * 1000;
     private static final String POSTGRES_CONTAINER_NAME = "postgres";
 
-    public BackupService(TaskPublisher taskPublisher, BackupRepository backupRepository) {
-        this.taskPublisher = taskPublisher;
-        this.backupRepository = backupRepository;
-    }
+
 
     public String createBackup() throws Exception {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        NotificationEvent event = new NotificationEvent();
+        event.setType("Бэкап начался!");
+        event.setMessage("Успешное начало бэкапа время: " + timestamp);
+        notificationPublisher.publishEvent("notifications", event);
+
         String backupFileName = "backup_" + timestamp + ".dump";
         String backupPath = Paths.get(backupDir, backupFileName).toString();
 
@@ -47,6 +54,11 @@ public class BackupService {
         copyBackupFromContainer(backupPath);
 
         backupRepository.saveBackup(backupFileName);
+
+        NotificationEvent completionEvent = new NotificationEvent();
+        completionEvent.setType("Бэкап завершен!");
+        completionEvent.setMessage("Проверьте свою локальную папку - все будет там");
+        notificationPublisher.publishEvent("notifications", completionEvent);
 
         return backupFileName;
     }

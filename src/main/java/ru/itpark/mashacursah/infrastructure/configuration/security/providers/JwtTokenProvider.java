@@ -3,15 +3,20 @@ package ru.itpark.mashacursah.infrastructure.configuration.security.providers;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtTokenProvider {
 
     private final Key jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final int jwtExpirationMs = 3600000;
+
+    @Value("${jwt.access-token-expiration}")
+    private int jwtExpirationMs;
+
 
     public String generateToken(String username) {
         Date now = new Date();
@@ -23,6 +28,11 @@ public class JwtTokenProvider {
             .setExpiration(expiryDate)
             .signWith(jwtSecret)
             .compact();
+    }
+
+    public String generateRefreshToken(String username) {
+        // Refresh токен как UUID
+        return UUID.randomUUID().toString();
     }
 
     public String getUsernameFromJWT(String token) {

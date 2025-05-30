@@ -1,9 +1,20 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:6432/mydb
+    url: jdbc:postgresql://localhost:5432/mydb
     username: myuser
     password: secret
 
+  data:
+    redis:
+      port: 6379
+      database: 0
+      host: redis
 backup:
-  directory: D:\DataBaseProject\back-main\backups
+  directory: C:\Users\Егор\IdeaProjects\DB_Project_Back\backups
   dbName: mydb
+
+jwt:
+  access-token-expiration:
+    3600000 # 1 час для access токена
+  refresh-token-expiration:
+    604800000 # 7 дней для refresh токена
